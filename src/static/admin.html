@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Mergington High School Activities</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Mergington High School</h1>
+      <h2>Admin Dashboard</h2>
+    </header>
+
+    <main>
+      <section id="admin-controls">
+        <h3>Manage Activities</h3>
+        <button id="create-activity-btn">Create New Activity</button>
+        <div id="create-form" class="hidden">
+          <form id="create-activity-form">
+            <div class="form-group">
+              <label for="new-activity-name">Activity Name:</label>
+              <input type="text" id="new-activity-name" required />
+            </div>
+            <div class="form-group">
+              <label for="new-description">Description:</label>
+              <textarea id="new-description" required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="new-schedule">Schedule:</label>
+              <input type="text" id="new-schedule" required />
+            </div>
+            <div class="form-group">
+              <label for="new-max-participants">Max Participants:</label>
+              <input type="number" id="new-max-participants" required min="1" />
+            </div>
+            <button type="submit">Create Activity</button>
+            <button type="button" id="cancel-create">Cancel</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="activities-container">
+        <h3>Available Activities</h3>
+        <div id="activities-list">
+          <!-- Activities will be loaded here -->
+          <p>Loading activities...</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 Mergington High School</p>
+    </footer>
+
+    <script src="admin.js"></script>
+  </body>
+</html>
