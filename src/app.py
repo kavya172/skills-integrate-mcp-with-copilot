@@ -10,9 +10,23 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
+from typing import Optional
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
+
+from pydantic import BaseModel
+
+class ActivityCreate(BaseModel):
+    activity_name: str
+    description: str
+    schedule: str
+    max_participants: int
+
+class ActivityUpdate(BaseModel):
+    description: Optional[str] = None
+    schedule: Optional[str] = None
+    max_participants: Optional[int] = None
 
 # Mount the static files directory
 current_dir = Path(__file__).parent
@@ -86,6 +100,53 @@ def root():
 @app.get("/activities")
 def get_activities():
     return activities
+
+
+@app.post("/activities")
+def create_activity(activity: ActivityCreate):
+    """Create a new activity (admin only)."""
+    if activity.activity_name in activities:
+        raise HTTPException(status_code=400, detail="Activity already exists")
+    if activity.max_participants <= 0:
+        raise HTTPException(status_code=400, detail="max_participants must be greater than 0")
+
+    activities[activity.activity_name] = {
+        "description": activity.description,
+        "schedule": activity.schedule,
+        "max_participants": activity.max_participants,
+        "participants": []
+    }
+    return {"message": f"Created activity {activity.activity_name}", "activity": activities[activity.activity_name]}
+
+
+@app.put("/activities/{activity_name}")
+def update_activity(activity_name: str, activity: ActivityUpdate):
+    """Update activity metadata (admin only)."""
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    existing = activities[activity_name]
+    if activity.description is not None:
+        existing["description"] = activity.description
+    if activity.schedule is not None:
+        existing["schedule"] = activity.schedule
+    if activity.max_participants is not None:
+        if activity.max_participants < len(existing["participants"]):
+            raise HTTPException(status_code=400, detail="max_participants cannot be less than current participants")
+        if activity.max_participants <= 0:
+            raise HTTPException(status_code=400, detail="max_participants must be greater than 0")
+        existing["max_participants"] = activity.max_participants
+
+    return {"message": f"Updated activity {activity_name}", "activity": existing}
+
+
+@app.delete("/activities/{activity_name}")
+def delete_activity(activity_name: str):
+    """Delete an activity (admin only)."""
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    del activities[activity_name]
+    return {"message": f"Deleted activity {activity_name}"}
 
 
 @app.post("/activities/{activity_name}/signup")
