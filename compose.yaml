@@ -1,0 +1,6 @@
+services:
+  skillsintegratemcpwithcopilot:
+    image: skillsintegratemcpwithcopilot
+    build:
+      context: .
+      dockerfile: ./Dockerfile
